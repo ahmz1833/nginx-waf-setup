@@ -34,7 +34,7 @@ services:
       # Custom Error Pages
       - ./errors:/var/www/errors
       # Logs (JSON access log + error log)
-      - ./logs/nginx:/var/log/nginx-s
+      - ./logs/nginx:/var/log/nginx
       # SSL Certificates
       - ./certs:/etc/nginx/certs:ro        # For Custom SSL
       - ./letsencrypt:/etc/letsencrypt     # For Certbot SSL
@@ -45,6 +45,7 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot-utility
+    restart: always
     volumes:
       - "./logs/certbot:/var/log/letsencrypt"
       - ./letsencrypt:/etc/letsencrypt
@@ -55,6 +56,7 @@ services:
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter
     container_name: nginx-prometheus-exporter
+    restart: always
     depends_on:
       - nginx-waf
     command:
