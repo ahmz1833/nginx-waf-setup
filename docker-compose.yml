@@ -30,6 +30,7 @@ services:
     volumes:
       # Configs
       - ./sites:/etc/nginx/conf.d/custom_sites
+      - ./sites-loader.conf:/etc/nginx/conf.d/zzz-custom-sites.conf:ro
       - ./snippets:/etc/nginx/snippets
       # Custom Error Pages
       - ./errors:/var/www/errors
