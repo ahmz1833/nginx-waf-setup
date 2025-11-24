@@ -31,7 +31,7 @@ EOF
 ensure_runtime_dirs() {
     mkdir -p "$SITES_DIR"
     mkdir -p "$LOG_DIR"
-    chmod 777 "$LOG_DIR"
+    chmod 755 "$LOG_DIR"
 }
 
 cmd_add() {
