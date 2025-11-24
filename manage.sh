@@ -4,6 +4,7 @@ set -euo pipefail
 
 COMPOSE_CMD="docker-compose"
 SITES_DIR="./sites"
+LOG_DIR="./logs/nginx"
 
 usage() {
     cat <<EOF
@@ -27,8 +28,10 @@ Examples:
 EOF
 }
 
-ensure_sites_dir() {
+ensure_runtime_dirs() {
     mkdir -p "$SITES_DIR"
+    mkdir -p "$LOG_DIR"
+    chmod 755 "$LOG_DIR"
 }
 
 cmd_add() {
@@ -41,7 +44,7 @@ cmd_add() {
     local backend="$2"
     local mode="$3"
 
-    ensure_sites_dir
+    ensure_runtime_dirs
     local site_config="$SITES_DIR/${domain}.conf"
 
     generate_http_block() {
@@ -164,7 +167,7 @@ cmd_remove() {
 }
 
 cmd_list() {
-    ensure_sites_dir
+    ensure_runtime_dirs
     if compgen -G "$SITES_DIR/*.conf" > /dev/null; then
         echo "Configured sites:"
         for f in "$SITES_DIR"/*.conf; do
@@ -201,6 +204,7 @@ cmd_setup_cron() {
 }
 
 cmd_start_stack() {
+    ensure_runtime_dirs
     echo "🚀 Starting Docker stack (nginx-waf, certbot, exporter)..."
     $COMPOSE_CMD up -d
 }
