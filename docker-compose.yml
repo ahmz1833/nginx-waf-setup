@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  waf:
+    image: owasp/modsecurity-crs:nginx
+    container_name: production-waf
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # --- WAF Configuration ---
+      - PARANOIA=1                   # 1 (Low) to 4 (High)
+      - ANOMALY_INBOUND=5            # Score threshold for blocking inbound
+      - ANOMALY_OUTBOUND=4           # Score threshold for blocking outbound
+      - MODSEC_RULE_ENGINE=On        # 'On' or 'DetectionOnly'
+      
+      # --- Nginx Tuning ---
+      - WORKER_CONNECTIONS=1024
+      - PROXY=127.0.0.1              # Dummy value to prevent startup errors in this specific image
+    volumes:
+      # Configs
+      - ./sites:/etc/nginx/conf.d/custom_sites
+      - ./snippets:/etc/nginx/snippets
+      # Custom Error Pages
+      - ./errors:/var/www/errors
+      # SSL Certificates
+      - ./certs:/etc/nginx/certs:ro        # For Custom SSL
+      - ./letsencrypt:/etc/letsencrypt     # For Certbot SSL
+      - certbot-webroot:/var/www/certbot   # For ACME Challenges
+    depends_on:
+      - certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot-utility
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    # Check for renewal every 12 hours
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  certbot-webroot:
