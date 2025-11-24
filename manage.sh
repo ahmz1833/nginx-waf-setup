@@ -103,7 +103,7 @@ EOF
             echo "🔹 Setting up Auto SSL (Let's Encrypt) for $domain..."
             generate_http_block
             echo "⏳ Requesting certificate..."
-            $COMPOSE_CMD run --rm --entrypoint "" certbot certonly --webroot --webroot-path /var/www/certbot -d "$domain" --email "admin@$domain" --rsa-key-size 4096 --agree-tos --no-eff-email || {
+            $COMPOSE_CMD run --rm --entrypoint certbot certbot certonly --webroot --webroot-path /var/www/certbot -d "$domain" --email "admin@$domain" --rsa-key-size 4096 --agree-tos --no-eff-email || {
                 echo "❌ Error: Certbot failed. Check logs/DNS." >&2
                 exit 1
             }
