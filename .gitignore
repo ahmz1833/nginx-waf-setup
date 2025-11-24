@@ -13,8 +13,11 @@ node_modules/
 # Certificates and private keys (keep secrets out of git)
 certs/*
 letsencrypt/*
+sites/*
 !certs/.gitkeep
 !letsencrypt/.gitkeep
+!sites/.gitkeep
+!sites/metrics.conf
 
 # Logs and temp runtime data
 logs/*

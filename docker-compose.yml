@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  waf:
+  nginx-waf:
     image: owasp/modsecurity-crs:nginx
     container_name: production-waf
     restart: always
@@ -14,8 +14,17 @@ services:
       - ANOMALY_INBOUND=5            # Score threshold for blocking inbound
       - ANOMALY_OUTBOUND=4           # Score threshold for blocking outbound
       - MODSEC_RULE_ENGINE=On        # 'On' or 'DetectionOnly'
-      
+      - MODSEC_REQ_BODY_ACCESS=on
+      - MODSEC_REQ_BODY_LIMIT=13107200
+      - MODSEC_REQ_BODY_NOFILES_LIMIT=131072
+      - MODSEC_RESP_BODY_ACCESS=on
+      - MODSEC_RESP_BODY_LIMIT=524288
+      - MODSEC_PCRE_MATCH_LIMIT=1000
+
       # --- Nginx Tuning ---
+      - MAX_FILE_SIZE=100000
+      - COMBINED_FILE_SIZES=1000000
+      - SERVER_TOKENS=off
       - WORKER_CONNECTIONS=1024
       - PROXY=127.0.0.1              # Dummy value to prevent startup errors in this specific image
     volumes:
@@ -24,6 +33,8 @@ services:
       - ./snippets:/etc/nginx/snippets
       # Custom Error Pages
       - ./errors:/var/www/errors
+      # Logs (JSON access log + error log)
+      - ./logs/nginx:/var/log/nginx
       # SSL Certificates
       - ./certs:/etc/nginx/certs:ro        # For Custom SSL
       - ./letsencrypt:/etc/letsencrypt     # For Certbot SSL
@@ -40,5 +51,15 @@ services:
     # Check for renewal every 12 hours
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  nginx-exporter:
+    image: nginxinc/nginx-prometheus-exporter:0.11.0
+    container_name: nginx-prometheus-exporter
+    depends_on:
+      - nginx-waf
+    command:
+      - -nginx.scrape-uri=http://nginx-waf:8080/stub_status
+    ports:
+      - "9113:9113"
+  
 volumes:
   certbot-webroot:
