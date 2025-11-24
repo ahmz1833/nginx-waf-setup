@@ -4,7 +4,7 @@ set -euo pipefail
 
 COMPOSE_CMD="docker-compose"
 SITES_DIR="./sites"
-LOG_DIR="./logs/nginx"
+LOG_DIR="./logs/nginx-s"
 
 usage() {
     cat <<EOF
