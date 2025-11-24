@@ -60,9 +60,6 @@ server {
     # Include ACME challenge path for Certbot
     include /etc/nginx/snippets/acme-challenge.conf;
 
-    # Standard logging snippet
-    include /etc/nginx/snippets/logging.conf;
-
     # Per-site log files
     access_log /var/log/nginx/sites/$domain/combined.log main_combined;
     access_log /var/log/nginx/sites/$domain/json.log main_json;
@@ -102,9 +99,6 @@ server {
     ssl_certificate_key /etc/nginx/certs/$domain.key;
     include /etc/nginx/snippets/ssl-params.conf;
 
-    # Standard logging snippet
-    include /etc/nginx/snippets/logging.conf;
-
     # Per-site log files
     access_log /var/log/nginx/sites/$domain/combined.log main_combined;
     access_log /var/log/nginx/sites/$domain/json.log main_json;
@@ -141,9 +135,6 @@ server {
     ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;
     include /etc/nginx/snippets/ssl-params.conf;
-
-    # Standard logging snippet
-    include /etc/nginx/snippets/logging.conf;
 
     # Per-site log files
     access_log /var/log/nginx/sites/$domain/combined.log main_combined;
