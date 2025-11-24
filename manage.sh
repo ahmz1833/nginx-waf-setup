@@ -207,7 +207,8 @@ cmd_setup_cron() {
 cmd_start_stack() {
     ensure_runtime_dirs
     echo "🚀 Starting Docker stack (nginx-waf, certbot, exporter)..."
-    $COMPOSE_CMD up -d
+	$COMPOSE_CMD down
+    $COMPOSE_CMD up -d --force-recreate
 }
 
 main() {
