@@ -13,8 +13,9 @@ Commands:
   add <domain> <backend> <mode>   Add or update a site (modes: http | auto | custom)
   remove <domain>                 Remove a site config and reload nginx
   list                            List configured sites
-  test-config                     Run 'nginx -t' inside waf container
+  test-config                     Run 'nginx -t' inside waf-nginx container
   reload                          Reload nginx (after testing config)
+  start-stack                     Bring up all services (docker-compose up -d)
   setup-cron                      Install daily 3AM nginx reload cron
   help                            Show this help
 
@@ -176,12 +177,12 @@ cmd_list() {
 
 cmd_test_config() {
     echo "🔍 Testing nginx configuration inside waf container..."
-    $COMPOSE_CMD exec waf nginx -t
+    $COMPOSE_CMD exec waf-nginx nginx -t
 }
 
 cmd_reload() {
     echo "🔁 Reloading nginx inside waf container..."
-    $COMPOSE_CMD exec waf nginx -s reload
+    $COMPOSE_CMD exec waf-nginx nginx -s reload
 }
 
 cmd_setup_cron() {
@@ -189,7 +190,7 @@ cmd_setup_cron() {
     compose_file=$(readlink -f docker-compose.yml)
     local compose_dir
     compose_dir=$(dirname "$compose_file")
-    local job="0 3 * * * cd $compose_dir && /usr/local/bin/docker-compose exec -T waf nginx -s reload"
+    local job="0 3 * * * cd $compose_dir && /usr/local/bin/docker-compose exec -T waf-nginx nginx -s reload"
 
     crontab -l 2>/dev/null | grep -F "$job" >/dev/null || {
         (crontab -l 2>/dev/null; echo "$job") | crontab -
@@ -197,6 +198,11 @@ cmd_setup_cron() {
         return
     }
     echo "👌 Cron job already exists. Skipping."
+}
+
+cmd_start_stack() {
+    echo "🚀 Starting Docker stack (nginx-waf, certbot, exporter)..."
+    $COMPOSE_CMD up -d
 }
 
 main() {
@@ -209,6 +215,7 @@ main() {
         list)          cmd_list "$@" ;;
         test-config)   cmd_test_config "$@" ;;
         reload)        cmd_reload "$@" ;;
+        start-stack)   cmd_start_stack "$@" ;;
         setup-cron)    cmd_setup_cron "$@" ;;
         help|--help|-h) usage ;;
         *)
