@@ -50,7 +50,7 @@ cmd_add() {
     generate_http_block() {
         cat <<EOF > "$site_config"
 server {
-    listen 80;
+    listen 8080;
     server_name $domain;
 
     # Include ACME challenge path for Certbot
@@ -80,13 +80,13 @@ EOF
             fi
             cat <<EOF > "$site_config"
 server {
-    listen 80;
+    listen 8080;
     server_name $domain;
     return 301 https://\$host\$request_uri;
 }
 
 server {
-    listen 443 ssl http2;
+    listen 8443 ssl http2;
     server_name $domain;
 
     ssl_certificate /etc/nginx/certs/$domain.crt;
@@ -114,14 +114,14 @@ EOF
             echo "✅ Certificate obtained! Switching to HTTPS..."
             cat <<EOF > "$site_config"
 server {
-    listen 80;
+    listen 8080;
     server_name $domain;
     include /etc/nginx/snippets/acme-challenge.conf;
     return 301 https://\$host\$request_uri;
 }
 
 server {
-    listen 443 ssl http2;
+    listen 8443 ssl http2;
     server_name $domain;
 
     ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;

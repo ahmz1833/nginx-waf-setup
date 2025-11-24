@@ -6,8 +6,8 @@ services:
     container_name: production-waf
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:8080"
+      - "443:8443"
     environment:
       # --- WAF Configuration ---
       - PARANOIA=1                   # 1 (Low) to 4 (High)
@@ -57,7 +57,7 @@ services:
     depends_on:
       - nginx-waf
     command:
-      - -nginx.scrape-uri=http://nginx-waf:8080/stub_status
+      - -nginx.scrape-uri=http://nginx-waf:8880/stub_status
     ports:
       - "9113:9113"
   
