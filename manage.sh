@@ -30,9 +30,12 @@ EOF
 
 ensure_runtime_dirs() {
     mkdir -p "$SITES_DIR"
-    mkdir -p "$LOG_DIR"
-	sudo chown -R 0:0 "$LOG_DIR"
-    sudo chmod 755 "$LOG_DIR"
+}
+
+ensure_site_log_dir() {
+    local domain="$1"
+    # Create per-site log folder inside the container so nginx -t succeeds
+    $COMPOSE_CMD exec -T -u 0 waf-nginx sh -c "mkdir -p /var/log/nginx/sites/$domain && chown -R nginx:nginx /var/log/nginx/sites/$domain"
 }
 
 cmd_add() {
@@ -59,6 +62,11 @@ server {
 
     # Standard logging snippet
     include /etc/nginx/snippets/logging.conf;
+
+    # Per-site log files
+    access_log /var/log/nginx/sites/$domain/combined.log main_combined;
+    access_log /var/log/nginx/sites/$domain/json.log main_json;
+    error_log  /var/log/nginx/sites/$domain/error.log warn;
 
     location / {
         proxy_pass $backend;
@@ -97,6 +105,11 @@ server {
     # Standard logging snippet
     include /etc/nginx/snippets/logging.conf;
 
+    # Per-site log files
+    access_log /var/log/nginx/sites/$domain/combined.log main_combined;
+    access_log /var/log/nginx/sites/$domain/json.log main_json;
+    error_log  /var/log/nginx/sites/$domain/error.log warn;
+
     location / {
         proxy_pass $backend;
         include /etc/nginx/snippets/waf-general.conf;
@@ -132,6 +145,11 @@ server {
     # Standard logging snippet
     include /etc/nginx/snippets/logging.conf;
 
+    # Per-site log files
+    access_log /var/log/nginx/sites/$domain/combined.log main_combined;
+    access_log /var/log/nginx/sites/$domain/json.log main_json;
+    error_log  /var/log/nginx/sites/$domain/error.log warn;
+
     location / {
         proxy_pass $backend;
         include /etc/nginx/snippets/waf-general.conf;
@@ -145,6 +163,7 @@ EOF
             ;;
     esac
 
+    ensure_site_log_dir "$domain"
     cmd_test_config
     cmd_reload
     echo "🚀 Done configuration for $domain"

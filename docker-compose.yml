@@ -34,7 +34,7 @@ services:
       # Custom Error Pages
       - ./errors:/var/www/errors
       # Logs (JSON access log + error log)
-      - ./logs/nginx:/var/log/nginx-s
+      - logs-nginx:/var/log/nginx
       # SSL Certificates
       - ./certs:/etc/nginx/certs:ro        # For Custom SSL
       - ./letsencrypt:/etc/letsencrypt     # For Certbot SSL
@@ -66,3 +66,4 @@ services:
   
 volumes:
   certbot-webroot:
+  logs-nginx:
