@@ -52,7 +52,7 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   nginx-exporter:
-    image: nginxinc/nginx-prometheus-exporter:0.11.0
+    image: nginx/nginx-prometheus-exporter
     container_name: nginx-prometheus-exporter
     depends_on:
       - nginx-waf
